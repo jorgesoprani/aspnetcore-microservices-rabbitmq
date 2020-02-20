@@ -9,6 +9,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MicroRabbitMQ.Banking.Application\MicroRabbitMQ.Banking.Application.csproj" />
+    <ProjectReference Include="..\MicroRabbitMQ.Banking.Infrastructure\MicroRabbitMQ.Banking.Infrastructure.csproj" />
     <ProjectReference Include="..\MicroRabbitMQ.Core.Domain\MicroRabbitMQ.Core.Domain.csproj" />
     <ProjectReference Include="..\MicroRabbitMQ.Infrastructure.Bus\MicroRabbitMQ.Infrastructure.Bus.csproj" />
   </ItemGroup>
