@@ -1,4 +1,5 @@
-﻿using MicroRabbitMQ.Banking.Domain.Models;
+﻿using MicroRabbitMQ.Banking.Application.Models;
+using MicroRabbitMQ.Banking.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,5 +10,6 @@ namespace MicroRabbitMQ.Banking.Application.Interfaces
     public interface IAccountService
     {
         Task<IEnumerable<Account>> GetAccounts();
+        Task Transfer(AccountTransfer transfer);
     }
 }

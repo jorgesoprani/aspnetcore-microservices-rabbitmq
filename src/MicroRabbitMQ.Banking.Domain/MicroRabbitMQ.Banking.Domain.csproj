@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\" />
-    <Folder Include="Events\" />
+    <ProjectReference Include="..\MicroRabbitMQ.Core.Domain\MicroRabbitMQ.Core.Domain.csproj" />
   </ItemGroup>
 
 </Project>
