@@ -38,15 +38,19 @@ namespace MicroRabbitMQ.Infrastructure.Bus
         public void Publish<TEvent>(TEvent @event) where TEvent : Event
         {
             var factory = new ConnectionFactory() { HostName = _hostname };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            var eventName = @event.GetType().Name;
-            var queue = channel.QueueDeclare(eventName, false, false, false, null);
+            using (var connection = factory.CreateConnection())
+            {
+                using (var channel = connection.CreateModel())
+                {
+                    var eventName = @event.GetType().Name;
+                    var queue = channel.QueueDeclare(eventName, false, false, false, null);
 
-            var message = JsonConvert.SerializeObject(@event);
-            var body = Encoding.UTF8.GetBytes(message);
+                    var message = JsonConvert.SerializeObject(@event);
+                    var body = Encoding.UTF8.GetBytes(message);
 
-            channel.BasicPublish("", eventName, null, body);
+                    channel.BasicPublish("", eventName, null, body);
+                }
+            }
         }
 
         public void Subscribe<TEvent, THandler>()
@@ -77,8 +81,9 @@ namespace MicroRabbitMQ.Infrastructure.Bus
                 HostName = _hostname,
                 DispatchConsumersAsync = true
             };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
+            var connection = factory.CreateConnection();
+
+            var channel = connection.CreateModel();
             var eventName = typeof(TEvent).Name;
             var queue = channel.QueueDeclare(eventName, false, false, false, null);
 
