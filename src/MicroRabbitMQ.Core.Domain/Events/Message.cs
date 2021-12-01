@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MicroRabbitMQ.Core.Domain.Events
 {
-    public abstract class Message : IRequest<bool>
+    public abstract class Message<T> : IRequest<T>
     {
         public string MessageType { get; protected set; }
         protected Message()

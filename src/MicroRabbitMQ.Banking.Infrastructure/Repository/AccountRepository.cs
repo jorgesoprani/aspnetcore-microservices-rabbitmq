@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MicroRabbitMQ.Banking.Infrastructure.Repository
@@ -16,9 +17,15 @@ namespace MicroRabbitMQ.Banking.Infrastructure.Repository
         {
             this._context = context;
         }
-        public async Task<IEnumerable<Account>> GetAll()
+
+        public async Task Create(Account account, CancellationToken cancellationToken) {
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<Account>> GetAll(CancellationToken cancellationToken)
         {
-            return await _context.Accounts.ToListAsync();
+            return await _context.Accounts.ToListAsync(cancellationToken);
         }
     }
 }

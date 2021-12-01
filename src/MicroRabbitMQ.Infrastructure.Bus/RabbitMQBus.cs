@@ -12,51 +12,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MicroRabbitMQ.Infrastructure.Bus
-{
-    public sealed class RabbitMQBus : IEventBus
-    {
+namespace MicroRabbitMQ.Infrastructure.Bus {
+    public sealed class RabbitMQBus : IEventBus {
         private const string _hostname = "localhost";
-        private readonly IMediator _mediator;
         private readonly Dictionary<string, List<Type>> _handlers;
         private readonly List<Type> _eventTypes;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public RabbitMQBus(IMediator mediator, IServiceScopeFactory serviceScopeFactory)
-        {
-            _mediator = mediator;
+        public RabbitMQBus(IServiceScopeFactory serviceScopeFactory) {
             _serviceScopeFactory = serviceScopeFactory;
             _handlers = new Dictionary<string, List<Type>>();
             _eventTypes = new List<Type>();
         }
 
-        public Task SendCommand<TCommand>(TCommand command) where TCommand : Command
-        {
-            return _mediator.Send(command);
-        }
-
-        public void Publish<TEvent>(TEvent @event) where TEvent : Event
-        {
+        public void Publish<TEvent>(TEvent @event) where TEvent : Event {
             var factory = new ConnectionFactory() { HostName = _hostname };
-            using (var connection = factory.CreateConnection())
-            {
-                using (var channel = connection.CreateModel())
-                {
-                    var eventName = @event.GetType().Name;
-                    var queue = channel.QueueDeclare(eventName, false, false, false, null);
+            using var connection = factory.CreateConnection();
+            using var channel = connection.CreateModel(); var eventName = @event.GetType().Name;
+            var queue = channel.QueueDeclare(eventName, false, false, false, null);
 
-                    var message = JsonConvert.SerializeObject(@event);
-                    var body = Encoding.UTF8.GetBytes(message);
+            var message = JsonConvert.SerializeObject(@event);
+            var body = Encoding.UTF8.GetBytes(message);
 
-                    channel.BasicPublish("", eventName, null, body);
-                }
-            }
+            channel.BasicPublish("", eventName, null, body);
         }
 
         public void Subscribe<TEvent, THandler>()
             where TEvent : Event
-            where THandler : IEventHandler
-        {
+            where THandler : IEventHandler {
             var eventName = typeof(TEvent).Name;
             var handlerType = typeof(THandler);
 
@@ -74,10 +57,8 @@ namespace MicroRabbitMQ.Infrastructure.Bus
             StartBasicConsume<TEvent>();
         }
 
-        private void StartBasicConsume<TEvent>() where TEvent : Event
-        {
-            var factory = new ConnectionFactory()
-            {
+        private void StartBasicConsume<TEvent>() where TEvent : Event {
+            var factory = new ConnectionFactory() {
                 HostName = _hostname,
                 DispatchConsumersAsync = true
             };
@@ -92,33 +73,27 @@ namespace MicroRabbitMQ.Infrastructure.Bus
             channel.BasicConsume(eventName, true, consumer);
         }
 
-        private async Task Consumer_Received(object sender, BasicDeliverEventArgs e)
-        {
+        private async Task Consumer_Received(object sender, BasicDeliverEventArgs e) {
             var eventName = e.RoutingKey;
             var message = Encoding.UTF8.GetString(e.Body);
 
-            try
-            {
+            try {
                 await ProcessEvent(eventName, message).ConfigureAwait(false);
             }
-            catch (Exception)
-            {
+            catch (Exception) {
 
             }
         }
 
-        private async Task ProcessEvent(string eventName, string message)
-        {
-            if (_handlers.ContainsKey(eventName))
-            {
-                using (var scope = _serviceScopeFactory.CreateScope())
-                {
+        private async Task ProcessEvent(string eventName, string message) {
+            if (_handlers.ContainsKey(eventName)) {
+                using (var scope = _serviceScopeFactory.CreateScope()) {
                     var subscriptions = _handlers[eventName];
-                    foreach (var sub in subscriptions)
-                    {
+                    foreach (var sub in subscriptions) {
                         var handler = scope.ServiceProvider.GetService(sub);
                         if (handler == null)
                             continue;
+
                         var eventType = _eventTypes.SingleOrDefault(t => t.Name == eventName);
                         var @event = JsonConvert.DeserializeObject(message, eventType);
                         var concreteType = typeof(IEventHandler<>).MakeGenericType(eventType);

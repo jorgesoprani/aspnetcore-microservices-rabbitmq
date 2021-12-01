@@ -8,7 +8,7 @@ namespace MicroRabbitMQ.Transfer.Infrastructure.Data
         public TransferDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<TransferDbContext>();
-            optionsBuilder.UseSqlServer("Server=localhost;Database=TransferDB;Trusted_Connection=True;MultipleActiveResultSets=True");
+            optionsBuilder.UseSqlServer("Server=localhost;Database=TransferDB;MultipleActiveResultSets=True;Uid=demo_user;Pwd=DemoUser*!");
 
             return new TransferDbContext(optionsBuilder.Options);
         }

@@ -8,7 +8,7 @@ namespace MicroRabbitMQ.Banking.Infrastructure.Data
         public BankingDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<BankingDbContext>();
-            optionsBuilder.UseSqlServer("Server=localhost;Database=BankingDB;Trusted_Connection=True;MultipleActiveResultSets=True");
+            optionsBuilder.UseSqlServer("Server=localhost;Database=BankingDB;MultipleActiveResultSets=True;Uid=demo_user;Pwd=DemoUser*!");
 
             return new BankingDbContext(optionsBuilder.Options);
         }
