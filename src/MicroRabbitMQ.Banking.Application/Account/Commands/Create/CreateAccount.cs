@@ -25,9 +25,7 @@ namespace MicroRabbitMQ.Banking.Application.Account.Commands.Create {
                 Balance = request.InitialBalance
             };
             await _accounts.Create(newAccount, cancellationToken);
-;
             return Unit.Value;
         }
     }
-
 }

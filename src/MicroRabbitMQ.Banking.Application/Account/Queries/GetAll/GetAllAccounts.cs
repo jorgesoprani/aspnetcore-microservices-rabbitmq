@@ -19,6 +19,7 @@ namespace MicroRabbitMQ.Banking.Application.Account.Queries.GetAll {
 
         public async Task<AllAccountsView> Handle(GetAllAccounts request, CancellationToken cancellationToken) {
             var items = await _accounts.GetAll(cancellationToken);
+            await Task.Delay(1000);
 
             return new AllAccountsView {
                 Quantity = items.Count(),

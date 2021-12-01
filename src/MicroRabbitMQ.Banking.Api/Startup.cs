@@ -4,6 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MediatR;
+using MicroRabbitMQ.Banking.Application;
+using MicroRabbitMQ.Banking.Application.Account.Commands.Create;
+using MicroRabbitMQ.Banking.Application.Behaviours;
 using MicroRabbitMQ.Banking.Infrastructure.Data;
 using MicroRabbitMQ.Infrastructure.IOC;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using PMicroRabbitMQ.Banking.Application.Behaviours;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace MicroRabbitMQ.Banking.Api {
@@ -39,6 +43,9 @@ namespace MicroRabbitMQ.Banking.Api {
             });
             
             services.AddMediatR(Assembly.GetExecutingAssembly(), Application.DependencyInjection.ExecutingAssembly);
+            services.AddValidators();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPerformanceBehaviour<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
             services.AddControllers();
 
